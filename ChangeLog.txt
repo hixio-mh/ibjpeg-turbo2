@@ -1,0 +1,114 @@
+1.0.2
+=====
+
+[1] Added further protections against invalid Huffman codes.
+
+[2] The algorithm used by the SIMD quantization function cannot produce correct
+results when the JPEG quality is >= 98 and the fast integer forward DCT is
+used.  Thus, the non-SIMD quantization function is now used for those cases,
+and libjpeg-turbo should now produce identical output to libjpeg v6b in all
+cases.
+
+[3] Despite the above, the fast integer forward DCT still degrades somewhat for
+JPEG qualities greater than 95, so TurboJPEG/OSS will now automatically use the
+slow integer forward DCT when generating JPEG images of quality 96 or greater.
+This reduces compression performance by as much as 15% for these high-quality
+images but is necessary to ensure that the images are perceptually lossless.
+It also ensures that the library can avoid the performance pitfall created by
+[2].
+
+[4] Fixed visual artifacts in grayscale JPEG compression caused by a typo in
+the RGB-to-chrominance lookup tables.
+
+[5] libjpeg-turbo's accelerated Huffman decoder previously ignored unexpected
+markers found in the middle of the JPEG data stream during decompression.  It
+will now hand off decoding of a particular block to the unaccelerated Huffman
+decoder if an unexpected marker is found, so that the unaccelerated Huffman
+decoder can generate an appropriate warning.
+
+[6] Older versions of MinGW64 prefixed symbol names with underscores by
+default, which differed from the behavior of 64-bit Visual C++.  MinGW64 1.0
+has adopted the behavior of 64-bit Visual C++ as the default, so to accommodate
+this, the libjpeg-turbo SIMD function names are no longer prefixed with an
+underscore when building with MinGW64.  This means that, when building
+libjpeg-turbo with older versions of MinGW64, you will now have to add
+-fno-leading-underscore to the CFLAGS.
+
+[6] Eliminated excessive I/O overhead that occurred when reading BMP files in
+cjpeg.
+
+[7] Eliminated errors in the output of cjpeg and jpegtran on Windows that
+occurred when the application was invoked using I/O redirection
+(cjpeg <inputfile >output.jpg).
+
+[8] Fixed an issue whereby Windows applications that used libjpeg-turbo would
+fail to compile if the Windows system headers were included before jpeglib.h.
+This issue was caused by a conflict in the definition of the INT32 type.
+
+[9] Fixed out-of-bounds read in SSE2 SIMD code that occurred when decompressing
+a JPEG image to a bitmap buffer whose size was not a multiple of 16 bytes.
+This was more of an annoyance than an actual bug, since it did not cause any
+actual run-time problems, but the issue showed up when running libjpeg-turbo in
+valgrind.  See http://crbug.com/72399 for more information.
+
+
+1.0.1
+=====
+
+[1] The Huffman decoder will now handle erroneous Huffman codes (for instance,
+from a corrupt JPEG image.)  Previously, these would cause libjpeg-turbo to
+crash under certain circumstances.
+
+[2] Fixed typo in SIMD dispatch routines which was causing 4:2:2 upsampling to
+be used instead of 4:2:0 when decompressing JPEG images using SSE2 code.
+
+[3] configure script will now automatically determine whether the
+INCOMPLETE_TYPES_BROKEN macro should be defined.
+
+
+1.0.0
+=====
+
+[1] 2983700: Further FreeBSD build tweaks (no longer necessary to specify
+--host when configuring on a 64-bit system)
+
+[2] Created sym. links in the Unix/Linux packages so that the TurboJPEG
+include file can always be found in /opt/libjpeg-turbo/include, the 32-bit
+static libraries can always be found in /opt/libjpeg-turbo/lib32, and the
+64-bit static libraries can always be found in /opt/libjpeg-turbo/lib64.
+
+[3] The Unix/Linux distribution packages now include the libjpeg run-time
+programs (cjpeg, etc.) and man pages.
+
+[4] Created a 32-bit supplementary package for amd64 Debian systems which
+contains just the 32-bit libjpeg-turbo libraries.
+
+[5] Moved the libraries from */lib32 to */lib in the i386 Debian package.
+
+[6] Include distribution package for Cygwin
+
+[7] No longer necessary to specify --without-simd on non-x86 architectures, and
+unit tests now work on those architectures.
+
+
+0.0.93
+======
+
+[1] 2982659, Fixed x86-64 build on FreeBSD systems
+
+[2] 2988188: Added support for Windows 64-bit systems
+
+
+0.0.91
+======
+
+[1] Added documentation to .deb packages
+
+[2] 2968313: Fixed data corruption issues when decompressing large JPEG images
+and/or using buffered I/O with the libjpeg-turbo decompressor
+
+
+0.0.90
+======
+
+Initial release
